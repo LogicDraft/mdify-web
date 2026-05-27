@@ -1,19 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config) => {
-    // Required for pdfjs-dist
-    config.resolve.alias.canvas = false;
-    config.resolve.alias.encoding = false;
-
-    // Handle binary files for mammoth
-    config.module.rules.push({
-      test: /\.node$/,
-      use: "node-loader",
-    });
-
-    return config;
-  },
+  // Silence the Turbopack+webpack config warning
+  turbopack: {},
   // Allow cross-origin requests for PDF.js worker
   async headers() {
     return [
