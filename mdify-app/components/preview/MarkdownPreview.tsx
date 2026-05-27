@@ -46,24 +46,20 @@ export function MarkdownPreview({ markdown, className }: MarkdownPreviewProps) {
                     </pre>
                   );
                 },
-                code({ inline, className, children, ...props }: {
-                  inline?: boolean;
-                  className?: string;
-                  children?: React.ReactNode;
-                  [key: string]: unknown;
-                }) {
-                  if (inline) {
+                code(props) {
+                  const { className, children } = props;
+                  const isInline = !className && typeof children === "string" && !children.includes("\n");
+                  if (isInline) {
                     return (
                       <code
                         className="bg-[var(--background-tertiary)] text-[var(--foreground)] px-1.5 py-0.5 rounded text-[0.85em] font-mono"
-                        {...props}
                       >
                         {children}
                       </code>
                     );
                   }
                   return (
-                    <code className={className} {...props}>
+                    <code className={className}>
                       {children}
                     </code>
                   );

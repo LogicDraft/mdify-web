@@ -72,7 +72,7 @@ export function DocumentInfo({ result }: DocumentInfoProps) {
 
       {/* Markdown Stats */}
       <div className="flex items-center gap-3 flex-wrap">
-        {statItems.filter(s => s.value > 0 || typeof s.value === "string").map((stat) => {
+        {statItems.filter(s => Number(s.value) > 0 || typeof s.value === "string").map((stat) => {
           const Icon = stat.icon;
           return (
             <div key={stat.label} className="flex items-center gap-1">
