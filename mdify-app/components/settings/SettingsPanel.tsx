@@ -207,31 +207,30 @@ export function SettingsPanel() {
                     AI Features
                   </h3>
 
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <div className="relative mt-0.5">
-                      <input
-                        type="checkbox"
-                        checked={settings.aiCleanupEnabled}
-                        onChange={(e) =>
-                          updateSettings({ aiCleanupEnabled: e.target.checked })
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-9 h-5 rounded-full border border-[var(--border)] bg-[var(--background-tertiary)] peer-checked:bg-[var(--accent)] peer-checked:border-[var(--accent)] transition-all duration-200" />
-                      <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200 peer-checked:translate-x-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
-                        <span className="text-sm font-medium text-[var(--foreground)]">
-                          AI Cleanup (Gemini)
-                        </span>
+                  <div className="rounded-xl border border-[var(--accent)]/30 bg-[var(--accent-light)] p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--accent)]/20 border border-[var(--accent)]/30 flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-4 h-4 text-[var(--accent)]" />
                       </div>
-                      <p className="text-xs text-[var(--foreground-subtle)] mt-0.5">
-                        Use Google Gemini to fix formatting artifacts and improve Markdown quality. Requires <code className="bg-[var(--background-tertiary)] px-1 rounded text-[10px]">GEMINI_API_KEY</code>.
-                      </p>
+                      <div>
+                        <p className="text-sm font-semibold text-[var(--foreground)] mb-1">
+                          Gemini AI — Always On
+                        </p>
+                        <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
+                          Every conversion is automatically structured by Gemini 1.5 Flash. It reconstructs headings, fixes tables, detects code blocks, and removes page artifacts.
+                        </p>
+                        <p className="text-xs text-[var(--foreground-subtle)] mt-2">
+                          Requires <code className="bg-[var(--background-tertiary)] px-1 py-0.5 rounded text-[10px] font-mono">GEMINI_API_KEY</code> in <code className="bg-[var(--background-tertiary)] px-1 py-0.5 rounded text-[10px] font-mono">.env.local</code>
+                        </p>
+                      </div>
                     </div>
-                  </label>
+                  </div>
+
+                  <p className="text-xs text-[var(--foreground-subtle)] mt-3 text-center">
+                    Use the{" "}
+                    <span className="text-[var(--accent)] font-medium">Re-structure</span>
+                    {" "}button in the preview toolbar to run AI again.
+                  </p>
                 </section>
               </div>
 

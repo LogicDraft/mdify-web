@@ -95,6 +95,7 @@ export default function PreviewPage() {
           <PreviewToolbar
             markdown={markdown}
             fileName={currentResult.fileName}
+            fileType={currentResult.fileType}
             onMarkdownChange={setMarkdown}
             viewMode={viewMode}
             setViewMode={setViewMode}

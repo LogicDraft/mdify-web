@@ -43,5 +43,5 @@ export const DEFAULT_SETTINGS: ConversionSettings = {
   headingStyle: "atx",
   includeYamlFrontmatter: false,
   autoCleanWhitespace: true,
-  aiCleanupEnabled: false,
+  aiCleanupEnabled: true,
 };
