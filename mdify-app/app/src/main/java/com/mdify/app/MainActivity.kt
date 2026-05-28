@@ -87,9 +87,10 @@ private fun MdifyRoot(viewModel: MdifyViewModel = viewModel()) {
     }
 
     LaunchedEffect(state.shareRequestKey) {
-        val markdown = state.currentResult?.markdown ?: return@LaunchedEffect
+        val result = state.currentResult ?: return@LaunchedEffect
+        val markdown = result.markdown
         if (state.shareRequestKey == 0L) return@LaunchedEffect
-        shareMarkdown(context, state.currentResult.fileName, markdown)
+        shareMarkdown(context, result.fileName, markdown)
         viewModel.onShareHandled()
     }
 
@@ -106,7 +107,8 @@ private fun MdifyRoot(viewModel: MdifyViewModel = viewModel()) {
 
     val onCopyClick = remember(state.currentResult?.markdown) {
         {
-            state.currentResult?.markdown?.let { markdown ->
+            val markdown = state.currentResult?.markdown
+            if (markdown != null) {
                 copyMarkdown(context, markdown)
                 viewModel.toast("Markdown copied")
             }

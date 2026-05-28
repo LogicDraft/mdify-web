@@ -75,7 +75,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("org.commonmark:commonmark:0.22.0")
     implementation("org.commonmark:commonmark-ext-gfm-tables:0.22.0")
-    implementation("org.xmlpull:xmlpull:1.1.3.1")
+    implementation("xmlpull:xmlpull:1.1.3.1")
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
 
     debugImplementation(composeBom)
