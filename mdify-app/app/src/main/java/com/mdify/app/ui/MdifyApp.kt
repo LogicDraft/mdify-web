@@ -9,7 +9,10 @@ import com.mdify.app.model.PreviewMode
 import com.mdify.app.model.UiState
 import com.mdify.app.ui.screens.HomeScreen
 import com.mdify.app.ui.screens.PreviewScreen
+import com.mdify.app.ui.screens.PrivacyPolicyScreen
 import com.mdify.app.ui.screens.ProcessingScreen
+import com.mdify.app.ui.screens.SettingsScreen
+import com.mdify.app.data.ThemePreference
 
 @Composable
 fun MdifyApp(
@@ -23,7 +26,11 @@ fun MdifyApp(
     onShare: () -> Unit,
     onTogglePreviewMode: (PreviewMode) -> Unit,
     onDeleteHistoryItem: (com.mdify.app.model.ConversionHistoryItem) -> Unit,
-    onClearHistory: () -> Unit
+    onClearHistory: () -> Unit,
+    onShowPrivacyPolicy: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onThemeChange: (ThemePreference) -> Unit,
+    onNotificationsChange: (Boolean) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.screen) {
@@ -32,7 +39,8 @@ fun MdifyApp(
                 onUploadClick = onPickFile,
                 onRecentSelected = onRecentSelected,
                 onDeleteHistoryItem = onDeleteHistoryItem,
-                onClearHistory = onClearHistory
+                onClearHistory = onClearHistory,
+                onSettingsClick = onSettingsClick
             )
 
             MdifyScreen.Processing -> ProcessingScreen(
@@ -53,6 +61,16 @@ fun MdifyApp(
                     onExport = onExport
                 )
             }
+            
+            MdifyScreen.PrivacyPolicy -> PrivacyPolicyScreen(onBack = onBack)
+            
+            MdifyScreen.Settings -> SettingsScreen(
+                settings = state.appSettings,
+                onBack = onBack,
+                onThemeChange = onThemeChange,
+                onNotificationsChange = onNotificationsChange,
+                onPrivacyPolicyClick = onShowPrivacyPolicy
+            )
         }
     }
 }

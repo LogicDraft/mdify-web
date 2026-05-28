@@ -81,4 +81,5 @@ dependencies {
     debugImplementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

@@ -1,11 +1,14 @@
 package com.mdify.app.model
 
 import kotlinx.serialization.Serializable
+import com.mdify.app.data.AppSettings
 
 enum class MdifyScreen {
     Home,
     Processing,
-    Preview
+    Preview,
+    PrivacyPolicy,
+    Settings
 }
 
 enum class PreviewMode {
@@ -24,7 +27,8 @@ data class UiState(
     val processingProgress: Float = 0f,
     val previewMode: PreviewMode = PreviewMode.Split,
     val pendingMessage: String? = null,
-    val shareRequestKey: Long = 0L
+    val shareRequestKey: Long = 0L,
+    val appSettings: AppSettings = AppSettings()
 )
 
 @Serializable

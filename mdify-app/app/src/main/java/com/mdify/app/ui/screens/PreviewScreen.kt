@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,7 +62,8 @@ fun PreviewScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.background)
-            .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
+            .systemBarsPadding()
+            .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
     ) {
         Surface(
             shape = RoundedCornerShape(24.dp),

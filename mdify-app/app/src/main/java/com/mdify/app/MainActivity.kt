@@ -8,11 +8,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -28,6 +30,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
@@ -35,14 +39,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mdify.app.ui.MdifyApp
 import com.mdify.app.ui.theme.MDifyTheme
 import java.io.File
+import android.os.Build
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent {
-            MDifyTheme {
+            val viewModel: MdifyViewModel = viewModel()
+            val state by viewModel.uiState.collectAsState()
+            
+            MDifyTheme(appSettings = state.appSettings) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -52,7 +64,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.background)
                     ) {
-                        MdifyRoot()
+                        MdifyRoot(viewModel = viewModel, state = state)
                     }
                 }
             }
@@ -61,8 +73,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun MdifyRoot(viewModel: MdifyViewModel = viewModel()) {
-    val state by viewModel.uiState.collectAsState()
+private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiState) {
     val context = LocalContext.current
 
     val filePicker = rememberLauncherForActivityResult(
@@ -78,6 +89,19 @@ private fun MdifyRoot(viewModel: MdifyViewModel = viewModel()) {
             uri?.let { viewModel.exportMarkdownTo(it) }
         }
     )
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = RequestPermission(),
+        onResult = { _ -> }
+    )
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     LaunchedEffect(state.pendingMessage) {
         state.pendingMessage?.let { message ->
@@ -141,7 +165,11 @@ private fun MdifyRoot(viewModel: MdifyViewModel = viewModel()) {
             onShare = viewModel::requestShare,
             onTogglePreviewMode = viewModel::setPreviewMode,
             onDeleteHistoryItem = viewModel::removeHistoryItem,
-            onClearHistory = viewModel::clearHistory
+            onClearHistory = viewModel::clearHistory,
+            onShowPrivacyPolicy = viewModel::showPrivacyPolicy,
+            onSettingsClick = viewModel::showSettings,
+            onThemeChange = viewModel::updateTheme,
+            onNotificationsChange = viewModel::updateNotificationsEnabled
         )
     }
 }

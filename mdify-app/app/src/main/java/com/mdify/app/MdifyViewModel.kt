@@ -8,11 +8,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdify.app.data.ConversionEngine
 import com.mdify.app.data.HistoryRepository
+import com.mdify.app.data.SettingsRepository
+import com.mdify.app.data.ThemePreference
 import com.mdify.app.model.ConversionHistoryItem
 import com.mdify.app.model.ConversionResult
 import com.mdify.app.model.MdifyScreen
 import com.mdify.app.model.PreviewMode
 import com.mdify.app.model.UiState
+import com.mdify.app.util.NotificationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +27,8 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
     private val appContext: Context = application.applicationContext
     private val historyRepository = HistoryRepository(appContext)
     private val conversionEngine = ConversionEngine(appContext)
+    private val notificationHelper = NotificationHelper(appContext)
+    private val settingsRepository = SettingsRepository(appContext)
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -32,6 +37,11 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             historyRepository.history.collect { items ->
                 _uiState.update { it.copy(history = items) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.settings.collect { settings ->
+                _uiState.update { it.copy(appSettings = settings) }
             }
         }
     }
@@ -77,6 +87,10 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
                         pendingMessage = "Conversion complete"
                     )
                 }
+                
+                if (_uiState.value.appSettings.notificationsEnabled) {
+                    notificationHelper.showConversionSuccessNotification(converted.fileName)
+                }
             } catch (error: Exception) {
                 _uiState.update {
                     it.copy(
@@ -110,6 +124,10 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
 
     fun goHome() {
         _uiState.update { it.copy(screen = MdifyScreen.Home) }
+    }
+
+    fun showPrivacyPolicy() {
+        _uiState.update { it.copy(screen = MdifyScreen.PrivacyPolicy) }
     }
 
     fun updateMarkdown(markdown: String) {
@@ -162,5 +180,21 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
 
     fun consumeMessage() {
         _uiState.update { it.copy(pendingMessage = null) }
+    }
+
+    fun showSettings() {
+        _uiState.update { it.copy(screen = MdifyScreen.Settings) }
+    }
+
+    fun updateTheme(theme: ThemePreference) {
+        viewModelScope.launch {
+            settingsRepository.updateTheme(theme)
+        }
+    }
+
+    fun updateNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.updateNotifications(enabled)
+        }
     }
 }
