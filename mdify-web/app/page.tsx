@@ -40,7 +40,7 @@ export default function HomePage() {
               <Link href="/convert" className="hover:text-[var(--foreground)] transition-colors">
                 Convert
               </Link>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--foreground)] transition-colors flex items-center gap-1">
+              <a href="https://github.com/LogicDraft" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--foreground)] transition-colors flex items-center gap-1">
                 <GithubIcon className="w-3.5 h-3.5" />
                 GitHub
               </a>

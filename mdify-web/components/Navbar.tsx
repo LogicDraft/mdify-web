@@ -60,7 +60,7 @@ export function Navbar() {
           {/* Right Controls */}
           <div className="flex items-center gap-2">
             <a
-              href="https://github.com"
+              href="https://github.com/LogicDraft"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-lg text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--background-tertiary)] transition-all duration-200"
