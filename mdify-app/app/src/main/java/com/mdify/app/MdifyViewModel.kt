@@ -197,4 +197,60 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
             settingsRepository.updateNotifications(enabled)
         }
     }
+
+    fun updateGeminiApiKey(key: String) {
+        viewModelScope.launch {
+            settingsRepository.updateGeminiApiKey(key)
+        }
+    }
+
+    fun restructureWithAi() {
+        var apiKey = _uiState.value.appSettings.geminiApiKey
+        if (apiKey.isBlank()) {
+            apiKey = BuildConfig.GEMINI_API_KEY
+        }
+        
+        if (apiKey.isBlank()) {
+            toast("Please set your Gemini API key in Settings or local.properties")
+            return
+        }
+
+        val today = java.time.LocalDate.now().toString()
+        val usageDate = _uiState.value.appSettings.aiUsageDate
+        val usageCount = _uiState.value.appSettings.aiUsageCount
+
+        if (usageDate == today && usageCount >= 3) {
+            toast("AI limit reached for today (max 3 times)")
+            return
+        }
+
+        val currentMarkdown = _uiState.value.markdownDraft
+        if (currentMarkdown.isBlank()) return
+
+        _uiState.update { it.copy(isAiProcessing = true) }
+
+        viewModelScope.launch {
+            try {
+                val generativeModel = com.google.ai.client.generativeai.GenerativeModel(
+                    modelName = "gemini-2.5-flash-lite",
+                    apiKey = apiKey
+                )
+                
+                val prompt = "Please restructure and clean up the following Markdown content to be well-formatted, professional, and easily readable. Only return the markdown code without extra conversational text:\n\n$currentMarkdown"
+                val response = generativeModel.generateContent(prompt)
+                val newMarkdown = response.text ?: currentMarkdown
+
+                // Remove markdown code block backticks if present
+                val cleanedMarkdown = newMarkdown.removePrefix("```markdown").removePrefix("```").removeSuffix("```").trim()
+
+                updateMarkdown(cleanedMarkdown)
+                settingsRepository.recordAiUsage()
+                toast("AI Restructure Complete")
+            } catch (e: Exception) {
+                toast("AI error: ${e.message}")
+            } finally {
+                _uiState.update { it.copy(isAiProcessing = false) }
+            }
+        }
+    }
 }

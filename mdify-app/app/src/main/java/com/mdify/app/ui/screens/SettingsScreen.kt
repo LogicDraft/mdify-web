@@ -44,6 +44,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onThemeChange: (ThemePreference) -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
+    onGeminiApiKeyChange: (String) -> Unit,
     onPrivacyPolicyClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
@@ -88,6 +89,27 @@ fun SettingsScreen(
                 checked = settings.notificationsEnabled,
                 onCheckedChange = onNotificationsChange
             )
+            
+            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = colors.surfaceVariant.copy(alpha = 0.5f))
+
+            // AI Integration Section
+            SettingsSectionHeader("AI Integration")
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)) {
+                Text(
+                    "Daily AI Usage: ${if (settings.aiUsageDate == java.time.LocalDate.now().toString()) settings.aiUsageCount else 0} / 3",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.OutlinedTextField(
+                    value = settings.geminiApiKey,
+                    onValueChange = onGeminiApiKeyChange,
+                    label = { Text("Gemini API Key") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("AIza...") }
+                )
+            }
             
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = colors.surfaceVariant.copy(alpha = 0.5f))
             

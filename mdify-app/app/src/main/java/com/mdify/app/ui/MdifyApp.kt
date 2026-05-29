@@ -30,7 +30,9 @@ fun MdifyApp(
     onShowPrivacyPolicy: () -> Unit,
     onSettingsClick: () -> Unit,
     onThemeChange: (ThemePreference) -> Unit,
-    onNotificationsChange: (Boolean) -> Unit
+    onNotificationsChange: (Boolean) -> Unit,
+    onGeminiApiKeyChange: (String) -> Unit,
+    onAiRestructure: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.screen) {
@@ -58,7 +60,9 @@ fun MdifyApp(
                     onModeChange = onTogglePreviewMode,
                     onCopy = onCopy,
                     onShare = onShare,
-                    onExport = onExport
+                    onExport = onExport,
+                    isAiProcessing = state.isAiProcessing,
+                    onAiRestructure = onAiRestructure
                 )
             }
             
@@ -69,6 +73,7 @@ fun MdifyApp(
                 onBack = onBack,
                 onThemeChange = onThemeChange,
                 onNotificationsChange = onNotificationsChange,
+                onGeminiApiKeyChange = onGeminiApiKeyChange,
                 onPrivacyPolicyClick = onShowPrivacyPolicy
             )
         }

@@ -52,7 +52,9 @@ fun PreviewScreen(
     onModeChange: (PreviewMode) -> Unit,
     onCopy: () -> Unit,
     onShare: () -> Unit,
-    onExport: () -> Unit
+    onExport: () -> Unit,
+    isAiProcessing: Boolean,
+    onAiRestructure: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     val wideScreen = LocalConfiguration.current.screenWidthDp >= 900
@@ -101,6 +103,15 @@ fun PreviewScreen(
                     ActionButton("Copy", Icons.Outlined.ContentCopy, onCopy)
                     ActionButton("Share", Icons.Outlined.IosShare, onShare)
                     ActionButton("Export", Icons.Outlined.Download, onExport)
+                    if (isAiProcessing) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.padding(horizontal = 14.dp).height(24.dp).width(24.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        ActionButton("AI Fix", Icons.Outlined.EditNote, onAiRestructure) // Using EditNote for now since AutoFixHigh is not easily imported
+                    }
                 }
             }
         }

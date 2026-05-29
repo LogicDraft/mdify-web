@@ -28,7 +28,8 @@ data class UiState(
     val previewMode: PreviewMode = PreviewMode.Split,
     val pendingMessage: String? = null,
     val shareRequestKey: Long = 0L,
-    val appSettings: AppSettings = AppSettings()
+    val appSettings: AppSettings = AppSettings(),
+    val isAiProcessing: Boolean = false
 )
 
 @Serializable

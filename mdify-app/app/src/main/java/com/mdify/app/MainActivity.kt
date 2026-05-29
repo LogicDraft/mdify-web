@@ -103,6 +103,10 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
         }
     }
 
+    androidx.activity.compose.BackHandler(enabled = state.screen != com.mdify.app.model.MdifyScreen.Home) {
+        viewModel.goHome()
+    }
+
     LaunchedEffect(state.pendingMessage) {
         state.pendingMessage?.let { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -169,7 +173,9 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
             onShowPrivacyPolicy = viewModel::showPrivacyPolicy,
             onSettingsClick = viewModel::showSettings,
             onThemeChange = viewModel::updateTheme,
-            onNotificationsChange = viewModel::updateNotificationsEnabled
+            onNotificationsChange = viewModel::updateNotificationsEnabled,
+            onGeminiApiKeyChange = viewModel::updateGeminiApiKey,
+            onAiRestructure = viewModel::restructureWithAi
         )
     }
 }
