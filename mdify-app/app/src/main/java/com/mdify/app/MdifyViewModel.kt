@@ -18,6 +18,7 @@ import com.mdify.app.model.UiState
 import com.mdify.app.util.NotificationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.encodeToString
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -303,9 +304,6 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun showBackupRestoreScreen() {
-        _uiState.update { it.copy(screen = MdifyScreen.BackupRestore) }
-    }
 
     enum class BackupType { SETTINGS, DATABASE, ALL }
 

@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -90,7 +91,7 @@ class SettingsRepository(private val context: Context) {
     }
 
     suspend fun getSettingsData(): com.mdify.app.model.AppSettingsData {
-        val preferences = kotlinx.coroutines.flow.first(context.dataStore.data)
+        val preferences = context.dataStore.data.first()
         return com.mdify.app.model.AppSettingsData(
             theme = preferences[THEME_KEY] ?: ThemePreference.SYSTEM.name,
             notificationsEnabled = preferences[NOTIFICATIONS_KEY] ?: true,

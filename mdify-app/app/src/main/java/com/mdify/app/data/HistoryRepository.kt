@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.mdify.app.model.ConversionHistoryItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -47,7 +48,7 @@ class HistoryRepository(private val context: Context) {
     }
 
     suspend fun getAllHistoryItems(): List<ConversionHistoryItem> {
-        val prefs = kotlinx.coroutines.flow.first(context.dataStore.data)
+        val prefs = context.dataStore.data.first()
         return prefs[historyKey]?.let { stored -> 
             runCatching { json.decodeFromString<List<ConversionHistoryItem>>(stored) }.getOrDefault(emptyList()) 
         } ?: emptyList()
