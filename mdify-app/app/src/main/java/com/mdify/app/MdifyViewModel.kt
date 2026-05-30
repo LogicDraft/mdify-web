@@ -238,10 +238,6 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
         navigateTo(MdifyScreen.Settings)
     }
 
-    fun showBackupRestoreScreen() {
-        navigateTo(MdifyScreen.BackupRestore)
-    }
-
     fun showLookAndFeelScreen() {
         navigateTo(MdifyScreen.LookAndFeel)
     }

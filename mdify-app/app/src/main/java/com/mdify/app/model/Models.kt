@@ -9,7 +9,6 @@ enum class MdifyScreen {
     Preview,
     PrivacyPolicy,
     Settings,
-    BackupRestore,
     LookAndFeel,
     About
 }
