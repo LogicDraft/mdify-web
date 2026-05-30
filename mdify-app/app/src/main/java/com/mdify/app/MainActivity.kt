@@ -15,15 +15,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,8 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
@@ -55,19 +44,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: MdifyViewModel = viewModel()
             val state by viewModel.uiState.collectAsState()
-            
+
             MDifyTheme(appSettings = state.appSettings) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background)
-                    ) {
-                        MdifyRoot(viewModel = viewModel, state = state)
-                    }
+                    MdifyRoot(viewModel = viewModel, state = state)
                 }
             }
         }
@@ -155,43 +138,31 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
         }
     }
 
-    AnimatedContent(
-        targetState = state.screen,
-        transitionSpec = {
-            if (targetState == com.mdify.app.model.MdifyScreen.Home) {
-                (slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300))) togetherWith 
-                (slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)))
-            } else {
-                (slideInHorizontally(tween(300)) { it } + fadeIn(tween(300))) togetherWith 
-                (slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)))
-            }
-        },
-        label = "mdify-screen"
-    ) { _ ->
-        MdifyApp(
-            state = state,
-            onPickFile = onUploadClick,
-            onRecentSelected = viewModel::openHistoryItem,
-            onBack = viewModel::goBack,
-            onMarkdownChange = viewModel::updateMarkdown,
-            onCopy = onCopyClick,
-            onExport = onExportClick,
-            onShare = viewModel::requestShare,
-            onTogglePreviewMode = viewModel::setPreviewMode,
-            onDeleteHistoryItem = viewModel::removeHistoryItem,
-            onClearHistory = viewModel::clearHistory,
-            onShowPrivacyPolicy = viewModel::showPrivacyPolicy,
-            onSettingsClick = viewModel::showSettings,
-            onThemeChange = viewModel::updateTheme,
-            onNotificationsChange = viewModel::updateNotificationsEnabled,
-            onGeminiApiKeyChange = viewModel::updateGeminiApiKey,
-            onAiRestructure = viewModel::restructureWithAi,
-            onAppResetClick = viewModel::appReset,
-            onLookAndFeelClick = viewModel::showLookAndFeelScreen,
-            onAboutClick = viewModel::showAboutScreen,
-            onDynamicColorsChange = viewModel::updateDynamicColorsEnabled
-        )
-    }
+    // Single clean transition point — no wrapping AnimatedContent here.
+    // All screen-to-screen animations are handled inside MdifyApp.kt.
+    MdifyApp(
+        state = state,
+        onPickFile = onUploadClick,
+        onRecentSelected = viewModel::openHistoryItem,
+        onBack = viewModel::goBack,
+        onMarkdownChange = viewModel::updateMarkdown,
+        onCopy = onCopyClick,
+        onExport = onExportClick,
+        onShare = viewModel::requestShare,
+        onTogglePreviewMode = viewModel::setPreviewMode,
+        onDeleteHistoryItem = viewModel::removeHistoryItem,
+        onClearHistory = viewModel::clearHistory,
+        onShowPrivacyPolicy = viewModel::showPrivacyPolicy,
+        onSettingsClick = viewModel::showSettings,
+        onThemeChange = viewModel::updateTheme,
+        onNotificationsChange = viewModel::updateNotificationsEnabled,
+        onGeminiApiKeyChange = viewModel::updateGeminiApiKey,
+        onAiRestructure = viewModel::restructureWithAi,
+        onAppResetClick = viewModel::appReset,
+        onLookAndFeelClick = viewModel::showLookAndFeelScreen,
+        onAboutClick = viewModel::showAboutScreen,
+        onDynamicColorsChange = viewModel::updateDynamicColorsEnabled
+    )
 }
 
 private fun copyMarkdown(context: Context, markdown: String) {
