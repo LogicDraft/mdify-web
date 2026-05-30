@@ -1,14 +1,13 @@
 package com.mdify.app.ui.screens
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import android.content.Intent
-import android.provider.Settings
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,35 +19,45 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.ColorLens
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
 import com.mdify.app.R
 import com.mdify.app.data.AppSettings
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     settings: AppSettings,
@@ -58,7 +67,7 @@ fun SettingsScreen(
     onLookAndFeelClick: () -> Unit,
     onAboutClick: () -> Unit
 ) {
-    var showResetDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
     val context = LocalContext.current
 
@@ -73,17 +82,40 @@ fun SettingsScreen(
         label = "gear_rotation_anim"
     )
 
-    androidx.compose.material3.Scaffold(
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text(stringResource(R.string.app_reset)) },
+            text = { Text(stringResource(R.string.app_reset_confirm)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showResetDialog = false
+                        onAppResetClick()
+                    }
+                ) {
+                    Text(stringResource(R.string.reset))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    Scaffold(
         containerColor = colors.background,
         topBar = {
-            androidx.compose.material3.CenterAlignedTopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(stringResource(R.string.settings), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { paddingValues ->
@@ -95,13 +127,12 @@ fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Animated Gears
             Box(
                 modifier = Modifier.size(120.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Large bottom gear
                 Icon(
                     imageVector = Icons.Filled.Settings,
                     contentDescription = null,
@@ -112,7 +143,6 @@ fun SettingsScreen(
                         .rotate(rotation),
                     tint = colors.primaryContainer
                 )
-                // Medium top gear
                 Icon(
                     imageVector = Icons.Filled.Settings,
                     contentDescription = null,
@@ -123,7 +153,6 @@ fun SettingsScreen(
                         .rotate(-rotation * 1.5f),
                     tint = colors.primaryContainer
                 )
-                // Small side gear
                 Icon(
                     imageVector = Icons.Filled.Settings,
                     contentDescription = null,
@@ -135,18 +164,17 @@ fun SettingsScreen(
                     tint = colors.primaryContainer
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = stringResource(R.string.tweak_experience),
                 style = MaterialTheme.typography.titleMedium,
                 color = colors.primary
             )
-            
+
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Settings Cards
             SettingsCard(
                 title = stringResource(R.string.look_and_feel),
                 subtitle = stringResource(R.string.look_and_feel_subtitle),
@@ -171,7 +199,7 @@ fun SettingsScreen(
                 title = stringResource(R.string.ai_integration),
                 subtitle = "${stringResource(R.string.daily_ai_usage)}: $usageCount / 3",
                 icon = Icons.Outlined.AutoAwesome,
-                onClick = { /* No action needed or maybe open an AI settings screen */ }
+                onClick = { }
             )
 
             SettingsCard(
@@ -190,27 +218,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
         }
-    if (showResetDialog) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text(stringResource(R.string.app_reset)) },
-            text = { Text(stringResource(R.string.app_reset_confirm)) },
-            confirmButton = {
-                androidx.compose.material3.TextButton(
-                    onClick = {
-                        showResetDialog = false
-                        onAppResetClick()
-                    }
-                ) {
-                    Text(stringResource(R.string.reset))
-                }
-            },
-            dismissButton = {
-                androidx.compose.material3.TextButton(onClick = { showResetDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
     }
 }
 

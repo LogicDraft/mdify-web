@@ -1,8 +1,10 @@
 package com.mdify.app.ui.screens
 
+import android.app.LocaleManager
 import android.content.Intent
-import android.provider.Settings
 import android.os.Build
+import android.os.LocaleList
+import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,8 +31,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,58 +59,6 @@ fun LookAndFeelScreen(
 ) {
     val colors = MaterialTheme.colorScheme
     val context = LocalContext.current
-
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.look_and_feel), fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Theme Section
-            val themeTitle = when (settings.theme) {
-                ThemePreference.SYSTEM -> stringResource(R.string.system_default)
-                ThemePreference.LIGHT -> stringResource(R.string.light)
-                ThemePreference.DARK -> stringResource(R.string.dark)
-            }
-            SettingsActionRow(
-                title = stringResource(R.string.dark_theme),
-                subtitle = themeTitle,
-                icon = Icons.Outlined.DarkMode,
-                onClick = {
-                    val nextTheme = when (settings.theme) {
-                        ThemePreference.SYSTEM -> ThemePreference.LIGHT
-                        ThemePreference.LIGHT -> ThemePreference.DARK
-                        ThemePreference.DARK -> ThemePreference.SYSTEM
-                    }
-                    onThemeChange(nextTheme)
-                }
-            )
-            
-import android.app.LocaleManager
-import android.os.LocaleList
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-
-// ... inside LookAndFeelScreen
     var showLanguageDialog by remember { mutableStateOf(false) }
 
     val supportedLanguages = listOf(
@@ -147,6 +103,48 @@ import androidx.compose.material3.TextButton
         )
     }
 
+    Scaffold(
+        containerColor = colors.background,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(stringResource(R.string.look_and_feel), fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Theme Section
+            val themeTitle = when (settings.theme) {
+                ThemePreference.SYSTEM -> stringResource(R.string.system_default)
+                ThemePreference.LIGHT -> stringResource(R.string.light)
+                ThemePreference.DARK -> stringResource(R.string.dark)
+            }
+            SettingsActionRow(
+                title = stringResource(R.string.dark_theme),
+                subtitle = themeTitle,
+                icon = Icons.Outlined.DarkMode,
+                onClick = {
+                    val nextTheme = when (settings.theme) {
+                        ThemePreference.SYSTEM -> ThemePreference.LIGHT
+                        ThemePreference.LIGHT -> ThemePreference.DARK
+                        ThemePreference.DARK -> ThemePreference.SYSTEM
+                    }
+                    onThemeChange(nextTheme)
+                }
+            )
+
             // Language Section
             SettingsActionRow(
                 title = stringResource(R.string.language),
@@ -160,7 +158,7 @@ import androidx.compose.material3.TextButton
                     }
                 }
             )
-            
+
             // Dynamic Colors Section (Only available on Android 12+)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 SettingsSwitchRow(
@@ -171,6 +169,8 @@ import androidx.compose.material3.TextButton
                     onCheckedChange = onDynamicColorsChange
                 )
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -198,8 +198,8 @@ private fun SettingsActionRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                icon, 
-                contentDescription = null, 
+                icon,
+                contentDescription = null,
                 tint = colors.primary,
                 modifier = Modifier.padding(end = 16.dp)
             )
@@ -235,8 +235,8 @@ private fun SettingsSwitchRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                icon, 
-                contentDescription = null, 
+                icon,
+                contentDescription = null,
                 tint = colors.primary,
                 modifier = Modifier.padding(end = 16.dp)
             )
