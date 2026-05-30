@@ -6,6 +6,8 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -28,7 +30,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.ColorLens
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.RestorePage
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +45,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import com.mdify.app.R
 import com.mdify.app.data.AppSettings
 
@@ -50,11 +54,13 @@ fun SettingsScreen(
     settings: AppSettings,
     onBack: () -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
-    onBackupRestoreClick: () -> Unit,
+    onAppResetClick: () -> Unit,
     onLookAndFeelClick: () -> Unit,
     onAboutClick: () -> Unit
 ) {
+    var showResetDialog by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
+    val context = LocalContext.current
 
     val infiniteTransition = rememberInfiniteTransition(label = "gear_rotation")
     val rotation by infiniteTransition.animateFloat(
@@ -67,23 +73,24 @@ fun SettingsScreen(
         label = "gear_rotation_anim"
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .systemBarsPadding()
-    ) {
-        // Top Bar Back Button
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier.padding(start = 8.dp, top = 8.dp)
-        ) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back", tint = colors.onBackground)
+    androidx.compose.material3.Scaffold(
+        containerColor = colors.background,
+        topBar = {
+            androidx.compose.material3.CenterAlignedTopAppBar(
+                title = { Text(stringResource(R.string.settings), fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+            )
         }
-
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -128,15 +135,6 @@ fun SettingsScreen(
                     tint = colors.primaryContainer
                 )
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Text(
-                text = stringResource(R.string.settings),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = colors.onBackground
-            )
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -160,14 +158,27 @@ fun SettingsScreen(
                 title = stringResource(R.string.notifications),
                 subtitle = stringResource(R.string.notifications_subtitle),
                 icon = Icons.Outlined.Notifications,
-                onClick = { onNotificationsChange(!settings.notificationsEnabled) }
+                onClick = {
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    }
+                    context.startActivity(intent)
+                }
+            )
+
+            val usageCount = if (settings.aiUsageDate == java.time.LocalDate.now().toString()) settings.aiUsageCount else 0
+            SettingsCard(
+                title = stringResource(R.string.ai_integration),
+                subtitle = "${stringResource(R.string.daily_ai_usage)}: $usageCount / 3",
+                icon = Icons.Outlined.AutoAwesome,
+                onClick = { /* No action needed or maybe open an AI settings screen */ }
             )
 
             SettingsCard(
-                title = stringResource(R.string.backup_restore),
-                subtitle = stringResource(R.string.backup_restore_subtitle),
-                icon = Icons.Outlined.RestorePage,
-                onClick = onBackupRestoreClick
+                title = stringResource(R.string.app_reset),
+                subtitle = stringResource(R.string.app_reset_desc),
+                icon = Icons.Outlined.Delete,
+                onClick = { showResetDialog = true }
             )
 
             SettingsCard(
@@ -179,6 +190,27 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(48.dp))
         }
+    if (showResetDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text(stringResource(R.string.app_reset)) },
+            text = { Text(stringResource(R.string.app_reset_confirm)) },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        showResetDialog = false
+                        onAppResetClick()
+                    }
+                ) {
+                    Text(stringResource(R.string.reset))
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showResetDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 

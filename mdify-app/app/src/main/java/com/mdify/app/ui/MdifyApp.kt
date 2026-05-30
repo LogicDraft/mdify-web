@@ -33,11 +33,7 @@ fun MdifyApp(
     onNotificationsChange: (Boolean) -> Unit,
     onGeminiApiKeyChange: (String) -> Unit,
     onAiRestructure: () -> Unit,
-    onBackupSettings: () -> Unit,
-    onBackupDatabase: () -> Unit,
-    onBackupAll: () -> Unit,
-    onRestore: () -> Unit,
-    onBackupRestoreClick: () -> Unit,
+    onAppResetClick: () -> Unit,
     onLookAndFeelClick: () -> Unit,
     onAboutClick: () -> Unit,
     onDynamicColorsChange: (Boolean) -> Unit
@@ -80,19 +76,12 @@ fun MdifyApp(
                 settings = state.appSettings,
                 onBack = onBack,
                 onNotificationsChange = onNotificationsChange,
-                onBackupRestoreClick = onBackupRestoreClick,
+                onAppResetClick = onAppResetClick,
                 onLookAndFeelClick = onLookAndFeelClick,
                 onAboutClick = onAboutClick
             )
             
-            MdifyScreen.BackupRestore -> com.mdify.app.ui.screens.BackupRestoreScreen(
-                onBack = onBack,
-                onBackupSettings = onBackupSettings,
-                onBackupDatabase = onBackupDatabase,
-                onBackupAll = onBackupAll,
-                onRestore = onRestore
-            )
-            
+
             MdifyScreen.LookAndFeel -> com.mdify.app.ui.screens.LookAndFeelScreen(
                 settings = state.appSettings,
                 onBack = onBack,

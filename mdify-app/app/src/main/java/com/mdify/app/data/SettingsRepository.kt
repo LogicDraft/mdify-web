@@ -112,4 +112,10 @@ class SettingsRepository(private val context: Context) {
             preferences[AI_USAGE_COUNT_KEY] = data.aiUsageCount
         }
     }
+
+    suspend fun clear() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
 }

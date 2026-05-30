@@ -69,86 +69,80 @@ fun PreviewScreen(
             .fillMaxSize()
             .background(colors.background)
             .systemBarsPadding()
+            .verticalScroll(rememberScrollState())
             .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
     ) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = colors.surfaceContainerHigh,
-            tonalElevation = 8.dp,
-            shadowElevation = 12.dp,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
-                    }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(result.fileName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1)
-                        Text(
-                            "${result.fileType.uppercase()} · ${result.conversionTimeMs}ms" + (result.pageCount?.let { " · $it pages" } ?: ""),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.onSurfaceVariant
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ModeChip("Split", previewMode == PreviewMode.Split, { onModeChange(PreviewMode.Split) }, Icons.Outlined.Splitscreen, enabled = wideScreen)
-                    ModeChip(stringResource(R.string.raw_markdown), previewMode == PreviewMode.Editor || !wideScreen, { onModeChange(PreviewMode.Editor) }, Icons.Outlined.EditNote)
-                    ModeChip(stringResource(R.string.result), previewMode == PreviewMode.Preview, { onModeChange(PreviewMode.Preview) }, Icons.Outlined.Preview)
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    ActionButton(stringResource(R.string.copy), Icons.Outlined.ContentCopy, onCopy)
-                    ActionButton(stringResource(R.string.share), Icons.Outlined.IosShare, onShare)
-                    ActionButton(stringResource(R.string.export), Icons.Outlined.Download, onExport)
-                    if (isAiProcessing) {
-                        Surface(
-                            shape = RoundedCornerShape(18.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            tonalElevation = 2.dp
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                androidx.compose.material3.CircularProgressIndicator(
-                                    modifier = Modifier.height(18.dp).width(18.dp),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    strokeWidth = 2.dp
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.fixing), color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            }
-                        }
-                    } else {
-                        ActionButton(stringResource(R.string.fix), Icons.Outlined.AutoAwesome, onAiRestructure)
-                    }
-                }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
             }
+            Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
+                Text(result.fileName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(
+                    "${result.fileType.uppercase()} · ${result.conversionTimeMs}ms" + (result.pageCount?.let { " · $it pages" } ?: ""),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            ModeChip("Split", previewMode == PreviewMode.Split, { onModeChange(PreviewMode.Split) }, Icons.Outlined.Splitscreen, enabled = wideScreen)
+            ModeChip(stringResource(R.string.raw_markdown), previewMode == PreviewMode.Editor || !wideScreen, { onModeChange(PreviewMode.Editor) }, Icons.Outlined.EditNote)
+            ModeChip(stringResource(R.string.result), previewMode == PreviewMode.Preview, { onModeChange(PreviewMode.Preview) }, Icons.Outlined.Preview)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            ActionButton(stringResource(R.string.copy), Icons.Outlined.ContentCopy, onCopy)
+            ActionButton(stringResource(R.string.share), Icons.Outlined.IosShare, onShare)
+            ActionButton(stringResource(R.string.export), Icons.Outlined.Download, onExport)
+            if (isAiProcessing) {
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    tonalElevation = 2.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.height(18.dp).width(18.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.fixing), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
+                }
+            } else {
+                ActionButton(stringResource(R.string.fix), Icons.Outlined.AutoAwesome, onAiRestructure)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         when (effectiveMode) {
             PreviewMode.Split -> Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 EditorPane(result.markdown, onMarkdownChange, Modifier.weight(1f))
                 PreviewPane(result.markdown, Modifier.weight(1f))
             }
 
-            PreviewMode.Editor -> EditorPane(result.markdown, onMarkdownChange, Modifier.fillMaxSize())
-            PreviewMode.Preview -> PreviewPane(result.markdown, Modifier.fillMaxSize())
+            PreviewMode.Editor -> EditorPane(result.markdown, onMarkdownChange, Modifier.fillMaxWidth())
+            PreviewMode.Preview -> PreviewPane(result.markdown, Modifier.fillMaxWidth())
         }
     }
 }
@@ -217,8 +211,7 @@ private fun EditorPane(markdown: String, onMarkdownChange: (String) -> Unit, mod
                 fontFamily = FontFamily.Monospace
             ),
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
                 .padding(18.dp),
             decorationBox = { inner ->
                 if (markdown.isBlank()) {
@@ -262,12 +255,16 @@ private fun PreviewPane(markdown: String, modifier: Modifier = Modifier) {
             factory = { context ->
                 WebView(context).apply {
                     setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                    layoutParams = android.view.ViewGroup.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
                 }
             },
             update = { webView ->
                 webView.loadDataWithBaseURL(null, css + html, "text/html", "utf-8", null)
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }

@@ -47,30 +47,34 @@ data class ConversionHistoryItem(
     val pageCount: Int? = null
 ) {
     fun toResult(): ConversionResult = ConversionResult(
+        id = id,
         fileName = fileName,
         fileSize = fileSize,
         fileType = fileType,
         markdown = markdown,
         conversionTimeMs = conversionTimeMs,
-        pageCount = pageCount
+        pageCount = pageCount,
+        convertedAt = convertedAt
     )
 }
 
 data class ConversionResult(
+    val id: String = "",
     val fileName: String,
     val fileSize: Long,
     val fileType: String,
     val markdown: String,
     val conversionTimeMs: Long = 0L,
-    val pageCount: Int? = null
+    val pageCount: Int? = null,
+    val convertedAt: Long = System.currentTimeMillis()
 ) {
     fun toHistoryItem(): ConversionHistoryItem = ConversionHistoryItem(
-        id = "${fileName}-${convertedAtKey()}",
+        id = id.ifBlank { "${fileName}-${System.currentTimeMillis()}" },
         fileName = fileName,
         fileSize = fileSize,
         fileType = fileType,
         markdown = markdown,
-        convertedAt = System.currentTimeMillis(),
+        convertedAt = convertedAt,
         conversionTimeMs = conversionTimeMs,
         pageCount = pageCount
     )

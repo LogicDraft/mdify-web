@@ -73,7 +73,10 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
                     result = conversionEngine.convert(uri, fileName, fileSize)
                 }
 
-                val converted = result!!.copy(conversionTimeMs = elapsed)
+                val converted = result!!.copy(
+                    conversionTimeMs = elapsed,
+                    id = "${fileName}-${System.currentTimeMillis()}"
+                )
                 tickProgress(0.72f, "Structuring markdown sections")
                 tickProgress(0.9f, "Preparing preview")
                 historyRepository.addToHistory(converted.toHistoryItem())
@@ -163,11 +166,18 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateMarkdown(markdown: String) {
+        val currentResult = _uiState.value.currentResult ?: return
+        val updatedResult = currentResult.copy(markdown = markdown)
+        
         _uiState.update { state ->
             state.copy(
                 markdownDraft = markdown,
-                currentResult = state.currentResult?.copy(markdown = markdown)
+                currentResult = updatedResult
             )
+        }
+        
+        viewModelScope.launch {
+            historyRepository.addToHistory(updatedResult.toHistoryItem())
         }
     }
 
@@ -203,6 +213,16 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             historyRepository.clear()
             toast("Recent files cleared")
+        }
+    }
+
+    fun appReset() {
+        viewModelScope.launch {
+            historyRepository.clear()
+            settingsRepository.clear()
+            appContext.cacheDir.deleteRecursively()
+            toast("App data reset successfully")
+            goHome()
         }
     }
 

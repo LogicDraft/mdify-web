@@ -94,6 +94,59 @@ fun LookAndFeelScreen(
                 }
             )
             
+import android.app.LocaleManager
+import android.os.LocaleList
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+
+// ... inside LookAndFeelScreen
+    var showLanguageDialog by remember { mutableStateOf(false) }
+
+    val supportedLanguages = listOf(
+        "en" to "English",
+        "hi" to "Hindi",
+        "ta" to "Tamil",
+        "te" to "Telugu",
+        "kn" to "Kannada",
+        "ml" to "Malayalam"
+    )
+
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.language)) },
+            text = {
+                Column {
+                    supportedLanguages.forEach { (tag, name) ->
+                        Text(
+                            text = name,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        val localeManager = context.getSystemService(LocaleManager::class.java)
+                                        localeManager.applicationLocales = LocaleList.forLanguageTags(tag)
+                                    }
+                                    showLanguageDialog = false
+                                }
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = colors.onSurface
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+
             // Language Section
             SettingsActionRow(
                 title = stringResource(R.string.language),
@@ -101,9 +154,7 @@ fun LookAndFeelScreen(
                 icon = Icons.Outlined.Language,
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
-                            data = android.net.Uri.parse("package:${context.packageName}")
-                        })
+                        showLanguageDialog = true
                     } else {
                         context.startActivity(Intent(Settings.ACTION_LOCALE_SETTINGS))
                     }

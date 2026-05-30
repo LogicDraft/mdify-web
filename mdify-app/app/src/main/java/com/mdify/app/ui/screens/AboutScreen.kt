@@ -75,17 +75,7 @@ fun AboutScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // AI Usage
-            SettingsSectionHeader(stringResource(R.string.ai_integration))
-            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp)) {
-                Text(
-                    "${stringResource(R.string.daily_ai_usage)}: ${if (settings.aiUsageDate == java.time.LocalDate.now().toString()) settings.aiUsageCount else 0} / 3",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant
-                )
-            }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = colors.surfaceVariant.copy(alpha = 0.5f))
 
             SettingsSectionHeader(stringResource(R.string.about))
             AboutActionRow(

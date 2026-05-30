@@ -21,6 +21,11 @@
     <string name="notifications_subtitle">Customise notification settings of the app</string>
     <string name="backup_restore_subtitle">Backup and restore app settings and other data</string>
     <string name="about_subtitle">Contributors and support</string>
+    <string name="app_reset">App Reset</string>
+    <string name="app_reset_desc">Delete all files and stored data from local</string>
+    <string name="app_reset_confirm">Are you sure you want to delete all app data? This action cannot be undone.</string>
+    <string name="reset">Reset</string>
+    <string name="cancel">Cancel</string>
     
     <string name="ai_integration">AI Integration</string>
     <string name="daily_ai_usage">Daily AI Usage</string>

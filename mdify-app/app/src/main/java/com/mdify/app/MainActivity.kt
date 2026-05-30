@@ -155,28 +155,6 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
         }
     }
 
-    var pendingBackupType by remember { mutableStateOf<MdifyViewModel.BackupType?>(null) }
-
-    val backupExportLauncher = rememberLauncherForActivityResult(
-        contract = CreateDocument("application/json"),
-        onResult = { uri ->
-            val type = pendingBackupType
-            if (uri != null && type != null) {
-                viewModel.createBackup(type, uri)
-            }
-            pendingBackupType = null
-        }
-    )
-
-    val backupRestoreLauncher = rememberLauncherForActivityResult(
-        contract = OpenDocument(),
-        onResult = { uri ->
-            if (uri != null) {
-                viewModel.restoreBackup(uri)
-            }
-        }
-    )
-
     AnimatedContent(
         targetState = state.screen,
         transitionSpec = {
@@ -208,22 +186,7 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
             onNotificationsChange = viewModel::updateNotificationsEnabled,
             onGeminiApiKeyChange = viewModel::updateGeminiApiKey,
             onAiRestructure = viewModel::restructureWithAi,
-            onBackupSettings = {
-                pendingBackupType = MdifyViewModel.BackupType.SETTINGS
-                backupExportLauncher.launch("mdify-backup-settings.json")
-            },
-            onBackupDatabase = {
-                pendingBackupType = MdifyViewModel.BackupType.DATABASE
-                backupExportLauncher.launch("mdify-backup-database.json")
-            },
-            onBackupAll = {
-                pendingBackupType = MdifyViewModel.BackupType.ALL
-                backupExportLauncher.launch("mdify-backup-all.json")
-            },
-            onRestore = {
-                backupRestoreLauncher.launch(arrayOf("application/json"))
-            },
-            onBackupRestoreClick = viewModel::showBackupRestoreScreen,
+            onAppResetClick = viewModel::appReset,
             onLookAndFeelClick = viewModel::showLookAndFeelScreen,
             onAboutClick = viewModel::showAboutScreen,
             onDynamicColorsChange = viewModel::updateDynamicColorsEnabled
