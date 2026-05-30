@@ -103,7 +103,7 @@ fun ProcessingScreen(
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Text("Converting to Markdown", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(androidx.compose.ui.res.stringResource(com.mdify.app.R.string.processing_document), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(fileName, style = MaterialTheme.typography.bodyLarge, color = colors.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(6.dp))

@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.EditNote
@@ -37,6 +39,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.res.stringResource
+import com.mdify.app.R
 import com.mdify.app.model.ConversionResult
 import com.mdify.app.model.PreviewMode
 import org.commonmark.ext.gfm.tables.TablesExtension
@@ -93,24 +97,40 @@ fun PreviewScreen(
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ModeChip("Split", previewMode == PreviewMode.Split, { onModeChange(PreviewMode.Split) }, Icons.Outlined.Splitscreen, enabled = wideScreen)
-                    ModeChip("Edit", previewMode == PreviewMode.Editor || !wideScreen, { onModeChange(PreviewMode.Editor) }, Icons.Outlined.EditNote)
-                    ModeChip("Preview", previewMode == PreviewMode.Preview, { onModeChange(PreviewMode.Preview) }, Icons.Outlined.Preview)
+                    ModeChip(stringResource(R.string.raw_markdown), previewMode == PreviewMode.Editor || !wideScreen, { onModeChange(PreviewMode.Editor) }, Icons.Outlined.EditNote)
+                    ModeChip(stringResource(R.string.result), previewMode == PreviewMode.Preview, { onModeChange(PreviewMode.Preview) }, Icons.Outlined.Preview)
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    ActionButton("Copy", Icons.Outlined.ContentCopy, onCopy)
-                    ActionButton("Share", Icons.Outlined.IosShare, onShare)
-                    ActionButton("Export", Icons.Outlined.Download, onExport)
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ActionButton(stringResource(R.string.copy), Icons.Outlined.ContentCopy, onCopy)
+                    ActionButton(stringResource(R.string.share), Icons.Outlined.IosShare, onShare)
+                    ActionButton(stringResource(R.string.export), Icons.Outlined.Download, onExport)
                     if (isAiProcessing) {
-                        androidx.compose.material3.CircularProgressIndicator(
-                            modifier = Modifier.padding(horizontal = 14.dp).height(24.dp).width(24.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 2.dp
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(18.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            tonalElevation = 2.dp
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                androidx.compose.material3.CircularProgressIndicator(
+                                    modifier = Modifier.height(18.dp).width(18.dp),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.fixing), color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            }
+                        }
                     } else {
-                        ActionButton("AI Fix", Icons.Outlined.EditNote, onAiRestructure) // Using EditNote for now since AutoFixHigh is not easily imported
+                        ActionButton(stringResource(R.string.fix), Icons.Outlined.AutoAwesome, onAiRestructure)
                     }
                 }
             }

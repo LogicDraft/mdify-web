@@ -32,7 +32,15 @@ fun MdifyApp(
     onThemeChange: (ThemePreference) -> Unit,
     onNotificationsChange: (Boolean) -> Unit,
     onGeminiApiKeyChange: (String) -> Unit,
-    onAiRestructure: () -> Unit
+    onAiRestructure: () -> Unit,
+    onBackupSettings: () -> Unit,
+    onBackupDatabase: () -> Unit,
+    onBackupAll: () -> Unit,
+    onRestore: () -> Unit,
+    onBackupRestoreClick: () -> Unit,
+    onLookAndFeelClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onDynamicColorsChange: (Boolean) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         when (state.screen) {
@@ -71,9 +79,30 @@ fun MdifyApp(
             MdifyScreen.Settings -> SettingsScreen(
                 settings = state.appSettings,
                 onBack = onBack,
-                onThemeChange = onThemeChange,
                 onNotificationsChange = onNotificationsChange,
-                onGeminiApiKeyChange = onGeminiApiKeyChange,
+                onBackupRestoreClick = onBackupRestoreClick,
+                onLookAndFeelClick = onLookAndFeelClick,
+                onAboutClick = onAboutClick
+            )
+            
+            MdifyScreen.BackupRestore -> com.mdify.app.ui.screens.BackupRestoreScreen(
+                onBack = onBack,
+                onBackupSettings = onBackupSettings,
+                onBackupDatabase = onBackupDatabase,
+                onBackupAll = onBackupAll,
+                onRestore = onRestore
+            )
+            
+            MdifyScreen.LookAndFeel -> com.mdify.app.ui.screens.LookAndFeelScreen(
+                settings = state.appSettings,
+                onBack = onBack,
+                onThemeChange = onThemeChange,
+                onDynamicColorsChange = onDynamicColorsChange
+            )
+            
+            MdifyScreen.About -> com.mdify.app.ui.screens.AboutScreen(
+                settings = state.appSettings,
+                onBack = onBack,
                 onPrivacyPolicyClick = onShowPrivacyPolicy
             )
         }

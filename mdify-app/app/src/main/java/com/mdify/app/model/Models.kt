@@ -8,7 +8,10 @@ enum class MdifyScreen {
     Processing,
     Preview,
     PrivacyPolicy,
-    Settings
+    Settings,
+    BackupRestore,
+    LookAndFeel,
+    About
 }
 
 enum class PreviewMode {
@@ -74,3 +77,19 @@ data class ConversionResult(
 }
 
 private fun convertedAtKey(): Long = System.currentTimeMillis()
+
+@Serializable
+data class AppSettingsData(
+    val theme: String,
+    val notificationsEnabled: Boolean,
+    val dynamicColorsEnabled: Boolean = true,
+    val geminiApiKey: String,
+    val aiUsageDate: String,
+    val aiUsageCount: Int
+)
+
+@Serializable
+data class BackupData(
+    val settings: AppSettingsData? = null,
+    val history: List<ConversionHistoryItem>? = null
+)

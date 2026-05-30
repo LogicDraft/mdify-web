@@ -122,12 +122,43 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private val backStack = mutableListOf<MdifyScreen>()
+
+    private fun navigateTo(screen: MdifyScreen) {
+        val currentScreen = _uiState.value.screen
+        if (currentScreen != screen) {
+            if (currentScreen != MdifyScreen.Home && currentScreen != MdifyScreen.Processing) {
+                backStack.add(currentScreen)
+            }
+            _uiState.update { it.copy(screen = screen) }
+        }
+    }
+
+    fun goBack() {
+        if (_uiState.value.isAiProcessing) return
+        if (backStack.isNotEmpty()) {
+            val prev = backStack.removeLast()
+            _uiState.update { it.copy(screen = prev) }
+        } else {
+            goHome()
+        }
+    }
+
     fun goHome() {
-        _uiState.update { it.copy(screen = MdifyScreen.Home) }
+        if (_uiState.value.isAiProcessing) return
+        backStack.clear()
+        _uiState.update { 
+            it.copy(
+                screen = MdifyScreen.Home,
+                processingStatus = "",
+                processingProgress = 0f,
+                processingFileName = ""
+            ) 
+        }
     }
 
     fun showPrivacyPolicy() {
-        _uiState.update { it.copy(screen = MdifyScreen.PrivacyPolicy) }
+        navigateTo(MdifyScreen.PrivacyPolicy)
     }
 
     fun updateMarkdown(markdown: String) {
@@ -183,7 +214,19 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun showSettings() {
-        _uiState.update { it.copy(screen = MdifyScreen.Settings) }
+        navigateTo(MdifyScreen.Settings)
+    }
+
+    fun showBackupRestoreScreen() {
+        navigateTo(MdifyScreen.BackupRestore)
+    }
+
+    fun showLookAndFeelScreen() {
+        navigateTo(MdifyScreen.LookAndFeel)
+    }
+
+    fun showAboutScreen() {
+        navigateTo(MdifyScreen.About)
     }
 
     fun updateTheme(theme: ThemePreference) {
@@ -195,6 +238,12 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
     fun updateNotificationsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.updateNotifications(enabled)
+        }
+    }
+
+    fun updateDynamicColorsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.updateDynamicColors(enabled)
         }
     }
 
@@ -250,6 +299,52 @@ class MdifyViewModel(application: Application) : AndroidViewModel(application) {
                 toast("AI error: ${e.message}")
             } finally {
                 _uiState.update { it.copy(isAiProcessing = false) }
+            }
+        }
+    }
+
+    fun showBackupRestoreScreen() {
+        _uiState.update { it.copy(screen = MdifyScreen.BackupRestore) }
+    }
+
+    enum class BackupType { SETTINGS, DATABASE, ALL }
+
+    fun createBackup(type: BackupType, uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val data = com.mdify.app.model.BackupData(
+                    settings = if (type == BackupType.SETTINGS || type == BackupType.ALL) settingsRepository.getSettingsData() else null,
+                    history = if (type == BackupType.DATABASE || type == BackupType.ALL) historyRepository.getAllHistoryItems() else null
+                )
+                val jsonStr = kotlinx.serialization.json.Json.encodeToString(data)
+                appContext.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use {
+                    it.write(jsonStr)
+                }
+                toast("Backup created successfully")
+            } catch (e: Exception) {
+                toast("Failed to create backup: ${e.message}")
+            }
+        }
+    }
+
+    fun restoreBackup(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val jsonStr = appContext.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+                if (jsonStr.isBlank()) {
+                    toast("Failed to read backup file")
+                    return@launch
+                }
+                val data = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.decodeFromString<com.mdify.app.model.BackupData>(jsonStr)
+                if (data.settings != null) {
+                    settingsRepository.restoreSettingsData(data.settings)
+                }
+                if (data.history != null) {
+                    historyRepository.restoreHistoryItems(data.history)
+                }
+                toast("Data restored successfully")
+            } catch (e: Exception) {
+                toast("Failed to restore backup: ${e.message}")
             }
         }
     }

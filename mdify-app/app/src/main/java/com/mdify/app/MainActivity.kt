@@ -19,6 +19,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -104,7 +106,7 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
     }
 
     androidx.activity.compose.BackHandler(enabled = state.screen != com.mdify.app.model.MdifyScreen.Home) {
-        viewModel.goHome()
+        viewModel.goBack()
     }
 
     LaunchedEffect(state.pendingMessage) {
@@ -153,16 +155,46 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
         }
     }
 
+    var pendingBackupType by remember { mutableStateOf<MdifyViewModel.BackupType?>(null) }
+
+    val backupExportLauncher = rememberLauncherForActivityResult(
+        contract = CreateDocument("application/json"),
+        onResult = { uri ->
+            val type = pendingBackupType
+            if (uri != null && type != null) {
+                viewModel.createBackup(type, uri)
+            }
+            pendingBackupType = null
+        }
+    )
+
+    val backupRestoreLauncher = rememberLauncherForActivityResult(
+        contract = OpenDocument(),
+        onResult = { uri ->
+            if (uri != null) {
+                viewModel.restoreBackup(uri)
+            }
+        }
+    )
+
     AnimatedContent(
         targetState = state.screen,
-        transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(180)) },
+        transitionSpec = {
+            if (targetState == com.mdify.app.model.MdifyScreen.Home) {
+                (slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300))) togetherWith 
+                (slideOutHorizontally(tween(300)) { it } + fadeOut(tween(300)))
+            } else {
+                (slideInHorizontally(tween(300)) { it } + fadeIn(tween(300))) togetherWith 
+                (slideOutHorizontally(tween(300)) { -it } + fadeOut(tween(300)))
+            }
+        },
         label = "mdify-screen"
     ) { _ ->
         MdifyApp(
             state = state,
             onPickFile = onUploadClick,
             onRecentSelected = viewModel::openHistoryItem,
-            onBack = viewModel::goHome,
+            onBack = viewModel::goBack,
             onMarkdownChange = viewModel::updateMarkdown,
             onCopy = onCopyClick,
             onExport = onExportClick,
@@ -175,7 +207,26 @@ private fun MdifyRoot(viewModel: MdifyViewModel, state: com.mdify.app.model.UiSt
             onThemeChange = viewModel::updateTheme,
             onNotificationsChange = viewModel::updateNotificationsEnabled,
             onGeminiApiKeyChange = viewModel::updateGeminiApiKey,
-            onAiRestructure = viewModel::restructureWithAi
+            onAiRestructure = viewModel::restructureWithAi,
+            onBackupSettings = {
+                pendingBackupType = MdifyViewModel.BackupType.SETTINGS
+                backupExportLauncher.launch("mdify-backup-settings.json")
+            },
+            onBackupDatabase = {
+                pendingBackupType = MdifyViewModel.BackupType.DATABASE
+                backupExportLauncher.launch("mdify-backup-database.json")
+            },
+            onBackupAll = {
+                pendingBackupType = MdifyViewModel.BackupType.ALL
+                backupExportLauncher.launch("mdify-backup-all.json")
+            },
+            onRestore = {
+                backupRestoreLauncher.launch(arrayOf("application/json"))
+            },
+            onBackupRestoreClick = viewModel::showBackupRestoreScreen,
+            onLookAndFeelClick = viewModel::showLookAndFeelScreen,
+            onAboutClick = viewModel::showAboutScreen,
+            onDynamicColorsChange = viewModel::updateDynamicColorsEnabled
         )
     }
 }

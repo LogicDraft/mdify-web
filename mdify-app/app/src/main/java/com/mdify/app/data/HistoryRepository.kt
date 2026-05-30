@@ -45,4 +45,17 @@ class HistoryRepository(private val context: Context) {
             prefs.remove(historyKey)
         }
     }
+
+    suspend fun getAllHistoryItems(): List<ConversionHistoryItem> {
+        val prefs = kotlinx.coroutines.flow.first(context.dataStore.data)
+        return prefs[historyKey]?.let { stored -> 
+            runCatching { json.decodeFromString<List<ConversionHistoryItem>>(stored) }.getOrDefault(emptyList()) 
+        } ?: emptyList()
+    }
+
+    suspend fun restoreHistoryItems(items: List<ConversionHistoryItem>) {
+        context.dataStore.edit { prefs ->
+            prefs[historyKey] = json.encodeToString(items)
+        }
+    }
 }

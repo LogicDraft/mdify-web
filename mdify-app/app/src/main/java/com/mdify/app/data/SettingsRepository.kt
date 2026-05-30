@@ -19,6 +19,7 @@ enum class ThemePreference {
 data class AppSettings(
     val theme: ThemePreference = ThemePreference.SYSTEM,
     val notificationsEnabled: Boolean = true,
+    val dynamicColorsEnabled: Boolean = true,
     val geminiApiKey: String = "",
     val aiUsageDate: String = "",
     val aiUsageCount: Int = 0
@@ -27,6 +28,7 @@ data class AppSettings(
 class SettingsRepository(private val context: Context) {
     private val THEME_KEY = stringPreferencesKey("theme_preference")
     private val NOTIFICATIONS_KEY = booleanPreferencesKey("notifications_enabled")
+    private val DYNAMIC_COLORS_KEY = booleanPreferencesKey("dynamic_colors_enabled")
     private val GEMINI_API_KEY = stringPreferencesKey("gemini_api_key")
     private val AI_USAGE_DATE_KEY = stringPreferencesKey("ai_usage_date")
     private val AI_USAGE_COUNT_KEY = androidx.datastore.preferences.core.intPreferencesKey("ai_usage_count")
@@ -34,6 +36,7 @@ class SettingsRepository(private val context: Context) {
     val settings: Flow<AppSettings> = context.dataStore.data.map { preferences ->
         val themeString = preferences[THEME_KEY] ?: ThemePreference.SYSTEM.name
         val notifications = preferences[NOTIFICATIONS_KEY] ?: true
+        val dynamicColors = preferences[DYNAMIC_COLORS_KEY] ?: true
         val apiKey = preferences[GEMINI_API_KEY] ?: ""
         val usageDate = preferences[AI_USAGE_DATE_KEY] ?: ""
         val usageCount = preferences[AI_USAGE_COUNT_KEY] ?: 0
@@ -41,6 +44,7 @@ class SettingsRepository(private val context: Context) {
         AppSettings(
             theme = try { ThemePreference.valueOf(themeString) } catch (e: Exception) { ThemePreference.SYSTEM },
             notificationsEnabled = notifications,
+            dynamicColorsEnabled = dynamicColors,
             geminiApiKey = apiKey,
             aiUsageDate = usageDate,
             aiUsageCount = usageCount
@@ -56,6 +60,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun updateNotifications(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[NOTIFICATIONS_KEY] = enabled
+        }
+    }
+
+    suspend fun updateDynamicColors(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[DYNAMIC_COLORS_KEY] = enabled
         }
     }
 
@@ -76,6 +86,29 @@ class SettingsRepository(private val context: Context) {
                 val currentCount = preferences[AI_USAGE_COUNT_KEY] ?: 0
                 preferences[AI_USAGE_COUNT_KEY] = currentCount + 1
             }
+        }
+    }
+
+    suspend fun getSettingsData(): com.mdify.app.model.AppSettingsData {
+        val preferences = kotlinx.coroutines.flow.first(context.dataStore.data)
+        return com.mdify.app.model.AppSettingsData(
+            theme = preferences[THEME_KEY] ?: ThemePreference.SYSTEM.name,
+            notificationsEnabled = preferences[NOTIFICATIONS_KEY] ?: true,
+            dynamicColorsEnabled = preferences[DYNAMIC_COLORS_KEY] ?: true,
+            geminiApiKey = preferences[GEMINI_API_KEY] ?: "",
+            aiUsageDate = preferences[AI_USAGE_DATE_KEY] ?: "",
+            aiUsageCount = preferences[AI_USAGE_COUNT_KEY] ?: 0
+        )
+    }
+
+    suspend fun restoreSettingsData(data: com.mdify.app.model.AppSettingsData) {
+        context.dataStore.edit { preferences ->
+            preferences[THEME_KEY] = data.theme
+            preferences[NOTIFICATIONS_KEY] = data.notificationsEnabled
+            preferences[DYNAMIC_COLORS_KEY] = data.dynamicColorsEnabled
+            preferences[GEMINI_API_KEY] = data.geminiApiKey
+            preferences[AI_USAGE_DATE_KEY] = data.aiUsageDate
+            preferences[AI_USAGE_COUNT_KEY] = data.aiUsageCount
         }
     }
 }

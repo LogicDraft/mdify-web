@@ -93,7 +93,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 
                 Text(
-                    text = "Convert Documents",
+                    text = androidx.compose.ui.res.stringResource(com.mdify.app.R.string.convert_document),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.fillMaxWidth(),
@@ -143,7 +143,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Recent",
+                        text = androidx.compose.ui.res.stringResource(com.mdify.app.R.string.recent_conversions),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -168,7 +168,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "No recent conversions",
+                            androidx.compose.ui.res.stringResource(com.mdify.app.R.string.no_recent_conversions),
                             style = MaterialTheme.typography.bodyMedium,
                             color = colors.onSurfaceVariant
                         )
